@@ -1,5 +1,11 @@
 from fastapi.testclient import TestClient
 from app.main import app
+from fastapi import Depends, HTTPException
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
+from app.database import get_db
 
 # Creating a test client wrapping your FastAPI app
 client = TestClient(app)
@@ -13,3 +19,10 @@ def test_create_item_not_success():
     response= client.post("/items/", json={"name": "laptop", "price": "free"})
     assert response.status_code == 422
     # assert response.json{} == {"name":"laptop", "price": 643.21}
+
+def test_about_returns_app_name():
+    with TestClient(app) as client:
+        response = client.get("/about")
+
+    assert response.status_code == 200
+    assert response.json()["name"] == "StudyHub"
